@@ -36,16 +36,36 @@ def write_csv(workday_accounts):
 
 def is_in_workday(driver, search_button, account):
     search_button.send_keys(account)
-    results = driver.find_elements_by_xpath('//wd-toggle/div[@class="toggle"][1]')
-    account = account.lower()
-    for result in results:
-        content = result.get_attribute('innerHTML')
-        if account in content.lower():
-            search_button.clear()
-            return True
+    keep_loading = True
+    while (keep_loading == True):
+        lm = driver.find_element_by_tag_name('button')
+        if (lm.text == 'Load more'):
+            try:
+                lm.click()
+            except:
+                break
+        else:
+            keep_loading = False
     
+    attempts = 0
+    found = False
+    while (attempts < 10): 
+        attempts += 1
+        try:
+            results = driver.find_elements_by_xpath('//wd-toggle/div[@class="toggle"][1]')
+            for result in results:
+                content = result.get_attribute('innerHTML')
+                if account.lower() in content.lower():
+                    found = True
+                
+            break
+    
+        except:
+            continue
+
     search_button.clear()
-    return False
+    return found
+
 
 if __name__ == "__main__":
     check_args()
